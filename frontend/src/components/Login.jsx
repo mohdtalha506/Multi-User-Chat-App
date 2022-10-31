@@ -1,120 +1,108 @@
+import { Formik } from 'formik'
 import React from 'react'
+import { useNavigate } from 'react-router-dom';
+import Swal from 'sweetalert2';
 
-const Login = () => {
-  return (
-      <section className="vh-100">
-          <div className="container-fluid h-custom">
-              <div className="row d-flex justify-content-center align-items-center h-100">
-                  <div className="col-md-9 col-lg-6 col-xl-5">
-                      <img
-                          src="https://mdbcdn.b-cdn.net/img/Photos/new-templates/bootstrap-login-form/draw2.webp"
-                          className="img-fluid"
-                          alt="Sample image"
-                      />
-                  </div>
-                  <div className="col-md-8 col-lg-6 col-xl-4 offset-xl-1">
-                      <form>
-                          <div className="d-flex flex-row align-items-center justify-content-center justify-content-lg-start">
-                              <p className="lead fw-normal mb-0 me-3">Sign in with</p>
-                              <button type="button" className="btn btn-primary btn-floating mx-1">
-                                  <i className="fab fa-facebook-f" />
-                              </button>
-                              <button type="button" className="btn btn-primary btn-floating mx-1">
-                                  <i className="fab fa-twitter" />
-                              </button>
-                              <button type="button" className="btn btn-primary btn-floating mx-1">
-                                  <i className="fab fa-linkedin-in" />
-                              </button>
-                          </div>
-                          <div className="divider d-flex align-items-center my-4">
-                              <p className="text-center fw-bold mx-3 mb-0">Or</p>
-                          </div>
-                          {/* Email input */}
-                          <div className="form-outline mb-4">
-                              <input
-                                  type="email"
-                                  id="form3Example3"
-                                  className="form-control form-control-lg"
-                                  placeholder="Enter a valid email address"
-                              />
-                              <label className="form-label" htmlFor="form3Example3">
-                                  Email address
-                              </label>
-                          </div>
-                          {/* Password input */}
-                          <div className="form-outline mb-3">
-                              <input
-                                  type="password"
-                                  id="form3Example4"
-                                  className="form-control form-control-lg"
-                                  placeholder="Enter password"
-                              />
-                              <label className="form-label" htmlFor="form3Example4">
-                                  Password
-                              </label>
-                          </div>
-                          <div className="d-flex justify-content-between align-items-center">
-                              {/* Checkbox */}
-                              <div className="form-check mb-0">
-                                  <input
-                                      className="form-check-input me-2"
-                                      type="checkbox"
-                                      defaultValue=""
-                                      id="form2Example3"
-                                  />
-                                  <label className="form-check-label" htmlFor="form2Example3">
-                                      Remember me
-                                  </label>
-                              </div>
-                              <a href="#!" className="text-body">
-                                  Forgot password?
-                              </a>
-                          </div>
-                          <div className="text-center text-lg-start mt-4 pt-2">
-                              <button
-                                  type="button"
-                                  className="btn btn-primary btn-lg"
-                                  style={{ paddingLeft: "2.5rem", paddingRight: "2.5rem" }}
-                              >
-                                  Login
-                              </button>
-                              <p className="small fw-bold mt-2 pt-1 mb-0">
-                                  Don't have an account?{" "}
-                                  <a href="#!" className="link-danger">
-                                      Register
-                                  </a>
-                              </p>
-                          </div>
-                      </form>
-                  </div>
-              </div>
-          </div>
-          <div className="d-flex flex-column flex-md-row text-center text-md-start justify-content-between py-4 px-4 px-xl-5 bg-primary">
-              {/* Copyright */}
-              <div className="text-white mb-3 mb-md-0">
-                  Copyright © 2020. All rights reserved.
-              </div>
-              {/* Copyright */}
-              {/* Right */}
-              <div>
-                  <a href="#!" className="text-white me-4">
-                      <i className="fab fa-facebook-f" />
-                  </a>
-                  <a href="#!" className="text-white me-4">
-                      <i className="fab fa-twitter" />
-                  </a>
-                  <a href="#!" className="text-white me-4">
-                      <i className="fab fa-google" />
-                  </a>
-                  <a href="#!" className="text-white">
-                      <i className="fab fa-linkedin-in" />
-                  </a>
-              </div>
-              {/* Right */}
-          </div>
-      </section>
+const Signup = () => {
 
-  )
+    const navigate = useNavigate();
+
+    const loginSubmit = async (formdata, { resetForm }) => {
+        console.log(formdata)
+        resetForm();
+
+        const response = await fetch('http://localhost:5000/user/authenticate', {
+            method: 'POST',
+            body: JSON.stringify(formdata),
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
+
+        if (response.status === 200) {
+            Swal.fire({
+                icon: 'success',
+                title: 'Logedin'
+            })
+
+            const data = await response.json();
+            sessionStorage.setItem('user', JSON.stringify(data));
+            navigate('/chat/'+data.name)
+
+
+        } else if ((response.status === 401)) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Login Failed'
+            })
+        } else {
+            console.log('unknown error ocuured');
+        }
+
+        // data to store in database
+    }
+
+    return (
+        <>
+            <section className=' vh-100' style={{ backgroundColor: 'gray', scrollbar: 'none' }}>
+                <div className='container h-1000' >
+                    <div className='d-flex justify-content-center align-items-center h-100'>
+                        <div className='col-lg-12 col-xl-11'>
+                            <div className='card text-black mt-5' style={{ borderRadius: '25px' }}>
+                                <div className='card-body p-md-5'>
+                                    <div className='row justify-content-center'>
+                                        <div className='col-md-10 col-lg-6 col-xl-5 order-2'>
+
+                                            <p class="text-center h1 fw-bold mb-5 mx-1 mx-md-4 mt-4">Login</p>
+                                            <Formik
+                                                initialValues={{ email: '', password: '' }}
+                                                onSubmit={loginSubmit}
+                                            >
+                                                {({ values, handleSubmit, handleChange }) => (
+
+
+                                                    <form onSubmit={handleSubmit}>
+
+                                                        <div className='d-flex flex-row align-items-center mb-4'>
+                                                            <i className='fa fa-envelope fa-lg me-3 fa-fw'></i>
+                                                            <input type="mail" className='form-control' placeholder='Your Email' name='email' onChange={handleChange} value={values.email} />
+                                                        </div>
+
+                                                        <div className='d-flex flex-row align-items-center mb-4'>
+                                                            <i className='fa fa-lock fa-lg fa-fw me-3'></i>
+                                                            <input type="password" className="form-control" id="" placeholder='Password' name='password' onChange={handleChange} value={values.password} />
+                                                        </div>
+
+
+                                                        <div className=' form-check d-flex justify-content-center mb-4'>
+                                                            <input type="checkbox" className='form-check-input me-2' />
+                                                            <label htmlFor="" className='form-check-label'>I agree all statemnet in <a href="#">Terms and
+                                                                condition</a></label>
+                                                        </div>
+
+                                                        <div className='d-flex justify-content-center mb-4'>
+                                                            <button type='submit' className='btn btn-primary btn-lg'>Signin</button>
+                                                        </div>
+                                                    </form>
+
+                                                )}
+                                            </Formik>
+
+                                        </div>
+                                        <div class="col-md-10 col-lg-6 col-xl-7 d-flex align-items-center order-1 order-lg-2">
+                                            <img src="https://cdni.iconscout.com/illustration/premium/thumb/user-account-sign-up-4489360-3723267.png"
+                                                alt="Sample" className='img-fluid h-100' />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </section>
+        </>
+    )
 }
 
-export default Login
+export default Signup;

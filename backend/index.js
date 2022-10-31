@@ -36,8 +36,6 @@ app.use(express.json());
 
 app.use('/user', userRouter);
 
-app.use('/video', videoRouter);
-
 app.get('/',(req,res)=>{
     res.send('Response from expesss');
 });
